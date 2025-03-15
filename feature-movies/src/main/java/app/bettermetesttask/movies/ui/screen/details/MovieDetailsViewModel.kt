@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.screen.details
+package app.bettermetesttask.movies.ui.screen.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,9 +19,7 @@ class MovieDetailsViewModel @Inject constructor(
     private val likeMovieUseCase: AddMovieToFavoritesUseCase,
     private val dislikeMovieUseCase: RemoveMovieFromFavoritesUseCase
 ) : ViewModel() {
-    private val _uiState: MutableStateFlow<MovieDetailsUiState> = MutableStateFlow(
-        MovieDetailsUiState.Initial
-    )
+    private val _uiState: MutableStateFlow<MovieDetailsUiState> = MutableStateFlow(MovieDetailsUiState.Initial)
     val uiState: StateFlow<MovieDetailsUiState>
         get() = _uiState.asStateFlow()
 
@@ -34,13 +32,16 @@ class MovieDetailsViewModel @Inject constructor(
     fun loadMovie() {
         viewModelScope.launch(AppDispatchers.io()) {
             movieId?.let {
-                observeMovieUseCase.invoke(it)
-                    .collectLatest { result ->
-                        if (result is Result.Success) {
-                            val newState = MovieDetailsUiState.Data(result.data)
-                            _uiState.emit(newState)
+                _uiState.emit(MovieDetailsUiState.Loading)
+                invokeCatching("Loading movie details failed") {
+                    observeMovieUseCase.invoke(it)
+                        .collectLatest { result ->
+                            if (result is Result.Success) {
+                                val newState = MovieDetailsUiState.Data(result.data)
+                                _uiState.emit(newState)
+                            }
                         }
-                    }
+                }
             }
         }
     }
@@ -48,11 +49,20 @@ class MovieDetailsViewModel @Inject constructor(
     fun likeMovie() {
         viewModelScope.launch(AppDispatchers.io()) {
             val movie = _uiState.value.asData?.movie ?: return@launch
-            if (!movie.liked) {
-                likeMovieUseCase(movie.id)
-            } else {
-                dislikeMovieUseCase(movie.id)
+            invokeCatching("Like/dislike failed") {
+                if (!movie.liked) {
+                    likeMovieUseCase(movie.id)
+                } else {
+                    dislikeMovieUseCase(movie.id)
+                }
             }
+        }
+    }
+
+    private suspend fun invokeCatching(prefix: String, invoke: suspend () -> Unit) {
+        runCatching { invoke() }.onFailure { error ->
+            val errorMessage = "$prefix: ${error.message.toString()}"
+            _uiState.emit(MovieDetailsUiState.Error(errorMessage))
         }
     }
 }

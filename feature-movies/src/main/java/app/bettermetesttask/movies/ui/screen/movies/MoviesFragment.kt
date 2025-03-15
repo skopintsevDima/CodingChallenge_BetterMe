@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.screen.movies
+package app.bettermetesttask.movies.ui.screen.movies
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -54,7 +54,7 @@ class MoviesFragment : Fragment(R.layout.movies_fragment), Injectable {
         viewModel.loadMovies()
 
         job = lifecycleScope.launchWhenCreated {
-            viewModel.moviesStateFlow.collect(::renderMoviesState)
+            viewModel.uiState.collect(::renderMoviesState)
         }
     }
 
@@ -63,14 +63,14 @@ class MoviesFragment : Fragment(R.layout.movies_fragment), Injectable {
         super.onDestroyView()
     }
 
-    private fun renderMoviesState(state: MoviesState) {
+    private fun renderMoviesState(state: MoviesUiState) {
         with(binding) {
             when (state) {
-                MoviesState.Loading -> {
+                MoviesUiState.Loading -> {
                     rvList.gone()
                     progressBar.visible()
                 }
-                is MoviesState.Loaded -> {
+                is MoviesUiState.Data -> {
                     progressBar.gone()
                     rvList.visible()
                 }

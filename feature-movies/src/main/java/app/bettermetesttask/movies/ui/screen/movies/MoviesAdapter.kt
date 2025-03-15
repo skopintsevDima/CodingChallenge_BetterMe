@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.screen.movies
+package app.bettermetesttask.movies.ui.screen.movies
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

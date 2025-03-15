@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/moviesFragmentCompose"
-        android:name="app.bettermetesttask.movies.screen.movies.compose.MoviesComposeFragment">
+        android:name="app.bettermetesttask.movies.ui.screen.movies.compose.MoviesComposeFragment">
 
         <deepLink app:uri="@string/movies_deep_link_compose" />
 
@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/movieDetailsFragmentCompose"
-        android:name="app.bettermetesttask.movies.screen.details.MovieDetailsComposeFragment">
+        android:name="app.bettermetesttask.movies.ui.screen.details.MovieDetailsComposeFragment">
         <argument
             android:name="movieId"
             app:argType="integer"

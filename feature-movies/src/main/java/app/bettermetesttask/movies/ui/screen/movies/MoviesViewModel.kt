@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.screen.movies
+package app.bettermetesttask.movies.ui.screen.movies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,34 +21,46 @@ class MoviesViewModel @Inject constructor(
     private val adapter: MoviesAdapter
 ) : ViewModel() {
 
-    private val moviesMutableFlow: MutableStateFlow<MoviesState> = MutableStateFlow(MoviesState.Initial)
+    private val _uiState: MutableStateFlow<MoviesUiState> = MutableStateFlow(MoviesUiState.Initial)
 
-    val moviesStateFlow: StateFlow<MoviesState>
-        get() = moviesMutableFlow.asStateFlow()
+    val uiState: StateFlow<MoviesUiState>
+        get() = _uiState.asStateFlow()
 
     fun loadMovies() {
         viewModelScope.launch(AppDispatchers.io()) {
-            observeMoviesUseCase()
-                .collect { result ->
-                    if (result is Result.Success) {
-                        moviesMutableFlow.emit(MoviesState.Loaded(result.data))
-                        adapter.submitList(result.data)
+            _uiState.emit(MoviesUiState.Loading)
+            invokeCatching("Loading movies failed") {
+                observeMoviesUseCase()
+                    .collect { result ->
+                        if (result is Result.Success) {
+                            _uiState.emit(MoviesUiState.Data(result.data))
+                            adapter.submitList(result.data)
+                        }
                     }
-                }
+            }
         }
     }
 
     fun likeMovie(movie: Movie) {
         viewModelScope.launch(AppDispatchers.io()) {
-            if (!movie.liked) {
-                likeMovieUseCase(movie.id)
-            } else {
-                dislikeMovieUseCase(movie.id)
+            invokeCatching("Like/dislike failed") {
+                if (!movie.liked) {
+                    likeMovieUseCase(movie.id)
+                } else {
+                    dislikeMovieUseCase(movie.id)
+                }
             }
         }
     }
 
     fun openMovieDetails(movie: Movie) {
         // Implemented in Compose Fragment only
+    }
+
+    private suspend fun invokeCatching(prefix: String, invoke: suspend () -> Unit) {
+        runCatching { invoke() }.onFailure { error ->
+            val errorMessage = "$prefix: ${error.message.toString()}"
+            _uiState.emit(MoviesUiState.Error(errorMessage))
+        }
     }
 }

@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.screen.details
+package app.bettermetesttask.movies.ui.screen.details
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -32,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +43,9 @@ import androidx.navigation.fragment.navArgs
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.featurecommon.injection.utils.Injectable
 import app.bettermetesttask.featurecommon.injection.viewmodel.SimpleViewModelProviderFactory
+import app.bettermetesttask.movies.ui.composable.ErrorScreen
+import app.bettermetesttask.movies.ui.composable.IdleScreen
+import app.bettermetesttask.movies.ui.composable.LoadingScreen
 import coil3.compose.AsyncImage
 import javax.inject.Inject
 import javax.inject.Provider
@@ -99,34 +102,26 @@ private fun MovieDetailsComposeScreen(
             .background(Color.White)
     ) {
         when (uiState) {
-            MovieDetailsUiState.Initial -> {}
-
-            MovieDetailsUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is MovieDetailsUiState.Data -> {
-                MovieDetails(
-                    movie = uiState.movie,
-                    onLikeClicked = onLikeClicked
-                )
-            }
+            MovieDetailsUiState.Initial -> IdleScreen()
+            MovieDetailsUiState.Loading -> LoadingScreen()
+            is MovieDetailsUiState.Data -> DataScreen(
+                movie = uiState.movie,
+                onLikeClicked = onLikeClicked
+            )
+            is MovieDetailsUiState.Error -> ErrorScreen(uiState.errorMessage)
         }
     }
 }
 
 @Composable
-private fun MovieDetails(
+private fun DataScreen(
     movie: Movie,
     onLikeClicked: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -134,13 +129,14 @@ private fun MovieDetails(
             model = movie.posterPath,
             contentDescription = "Movie Poster",
             modifier = Modifier
-                .size(300.dp, 500.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.Gray)
+                .width(300.dp)
+                .weight(0.5f)
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
         )
         Spacer(modifier = Modifier.height(32.dp))
         Row(
-            Modifier.fillMaxWidth()
+            Modifier.fillMaxWidth().weight(0.5f)
         ) {
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
