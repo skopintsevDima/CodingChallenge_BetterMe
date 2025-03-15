@@ -20,13 +20,13 @@ class MoviesViewModel @Inject constructor(
     private val dislikeMovieUseCase: RemoveMovieFromFavoritesUseCase,
     private val adapter: MoviesAdapter
 ) : ViewModel() {
-
     private val _uiState: MutableStateFlow<MoviesUiState> = MutableStateFlow(MoviesUiState.Initial)
-
     val uiState: StateFlow<MoviesUiState>
         get() = _uiState.asStateFlow()
 
     fun loadMovies() {
+        if (_uiState.value is MoviesUiState.Data) return
+
         viewModelScope.launch(AppDispatchers.io()) {
             _uiState.emit(MoviesUiState.Loading)
             invokeCatching("Loading movies failed") {
