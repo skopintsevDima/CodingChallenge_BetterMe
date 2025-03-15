@@ -3,7 +3,6 @@ package app.bettermetesttask.movies.ui.screen.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.bettermetesttask.domaincore.utils.Result
-import app.bettermetesttask.domaincore.utils.coroutines.AppDispatchers
 import app.bettermetesttask.domainmovies.interactors.AddMovieToFavoritesUseCase
 import app.bettermetesttask.domainmovies.interactors.ObserveMovieUseCase
 import app.bettermetesttask.domainmovies.interactors.RemoveMovieFromFavoritesUseCase
@@ -30,11 +29,11 @@ class MovieDetailsViewModel @Inject constructor(
     }
 
     fun loadMovie() {
-        viewModelScope.launch(AppDispatchers.io()) {
-            movieId?.let {
+        viewModelScope.launch {
+            movieId?.let { movieIdNotNull ->
                 _uiState.emit(MovieDetailsUiState.Loading)
                 invokeCatching("Loading movie details failed") {
-                    observeMovieUseCase.invoke(it)
+                    observeMovieUseCase.request(movieIdNotNull)
                         .collectLatest { result ->
                             if (result is Result.Success) {
                                 val newState = MovieDetailsUiState.Data(result.data)
@@ -47,13 +46,13 @@ class MovieDetailsViewModel @Inject constructor(
     }
 
     fun likeMovie() {
-        viewModelScope.launch(AppDispatchers.io()) {
+        viewModelScope.launch {
             val movie = _uiState.value.asData?.movie ?: return@launch
             invokeCatching("Like/dislike failed") {
                 if (!movie.liked) {
-                    likeMovieUseCase(movie.id)
+                    likeMovieUseCase.request(movie.id)
                 } else {
-                    dislikeMovieUseCase(movie.id)
+                    dislikeMovieUseCase.request(movie.id)
                 }
             }
         }

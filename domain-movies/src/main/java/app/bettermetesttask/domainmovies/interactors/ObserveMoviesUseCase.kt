@@ -1,5 +1,6 @@
 package app.bettermetesttask.domainmovies.interactors
 
+import app.bettermetesttask.domaincore.interactor.DefaultIoDispatcherUseCase
 import app.bettermetesttask.domaincore.utils.Result
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.domainmovies.repository.MoviesRepository
@@ -10,9 +11,8 @@ import javax.inject.Inject
 
 class ObserveMoviesUseCase @Inject constructor(
     private val repository: MoviesRepository
-) {
-
-    suspend operator fun invoke(): Flow<Result<List<Movie>>> {
+): DefaultIoDispatcherUseCase<Flow<Result<List<Movie>>>>() {
+    override suspend fun invoke(): Flow<Result<List<Movie>>> {
         return when (val result = repository.getMovies()) {
             is Result.Success -> {
                 repository.observeLikedMovieIds()

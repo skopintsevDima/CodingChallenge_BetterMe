@@ -9,7 +9,7 @@ abstract class UseCaseIoDispatcherWithRequest<Result, Request: Any> {
 
     abstract suspend operator fun invoke(): Result
 
-    suspend fun get(request: Request): Result = withContext(AppDispatchers.io()) {
+    suspend fun request(request: Request): Result = withContext(AppDispatchers.io()) {
         this@UseCaseIoDispatcherWithRequest.request = request
         invoke()
     }

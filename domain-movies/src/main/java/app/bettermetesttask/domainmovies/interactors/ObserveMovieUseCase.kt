@@ -1,5 +1,6 @@
 package app.bettermetesttask.domainmovies.interactors
 
+import app.bettermetesttask.domaincore.interactor.UseCaseIoDispatcherWithRequest
 import app.bettermetesttask.domaincore.utils.Result
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.domainmovies.repository.MoviesRepository
@@ -10,11 +11,11 @@ import javax.inject.Inject
 
 class ObserveMovieUseCase @Inject constructor(
     private val repository: MoviesRepository
-) {
-    suspend operator fun invoke(movieId: Int): Flow<Result<Movie>> {
-        return when (val result = repository.getMovie(movieId)) {
+): UseCaseIoDispatcherWithRequest<Flow<Result<Movie>>, Int>() {
+    override suspend fun invoke(): Flow<Result<Movie>> {
+        return when (val result = repository.getMovie(request)) {
             is Result.Success -> {
-                repository.observeLikedMovie(movieId)
+                repository.observeLikedMovie(request)
                     .map { likedMovieId ->
                         val movie = result.data.copy(
                             liked = likedMovieId != null
