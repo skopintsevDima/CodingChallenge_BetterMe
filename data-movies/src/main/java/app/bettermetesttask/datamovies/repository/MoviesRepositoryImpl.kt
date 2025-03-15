@@ -3,7 +3,9 @@ package app.bettermetesttask.datamovies.repository
 import app.bettermetesttask.datamovies.repository.stores.MoviesLocalStore
 import app.bettermetesttask.datamovies.repository.stores.MoviesMapper
 import app.bettermetesttask.datamovies.repository.stores.MoviesRestStore
+import app.bettermetesttask.domaincore.utils.Constants.ErrorCodes.ERROR_NETWORK_UNAVAILABLE
 import app.bettermetesttask.domaincore.utils.Result
+import app.bettermetesttask.domaincore.utils.connectivity.ConnectivityManager
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.domainmovies.repository.MoviesRepository
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +14,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class MoviesRepositoryImpl @Inject constructor(
+    private val connectivityManager: ConnectivityManager,
     private val localStore: MoviesLocalStore,
     private val restStore: MoviesRestStore,
     private val mapper: MoviesMapper
@@ -22,16 +25,19 @@ class MoviesRepositoryImpl @Inject constructor(
 
         return when (refreshLocalMoviesAttempt) {
             is Result.Success -> {
-                Result.of { localMovies }
+                Result.Success(localMovies)
             }
             is Result.Error -> {
                 Timber.d("Refresh local movies failed: ${refreshLocalMoviesAttempt.error}")
-                Result.of { localMovies }
+                Result.Success(localMovies)
             }
         }
     }
 
     private fun tryRefreshLocalMovies(): Result<Unit> {
+        if (!connectivityManager.isNetworkAvailable()) {
+            return Result.Error(Throwable(ERROR_NETWORK_UNAVAILABLE))
+        }
         return runBlocking {
             runCatching { restStore.getMovies() }.fold(
                 onSuccess = { apiMovies ->
