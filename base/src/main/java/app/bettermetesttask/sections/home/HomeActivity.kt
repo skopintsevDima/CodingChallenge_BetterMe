@@ -14,7 +14,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import javax.inject.Inject
 
-class HomeActivity : AppCompatActivity(R.layout.activity_main), HasAndroidInjector {
+class HomeActivity : AppCompatActivity(R.layout.activity_home), HasAndroidInjector {
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>

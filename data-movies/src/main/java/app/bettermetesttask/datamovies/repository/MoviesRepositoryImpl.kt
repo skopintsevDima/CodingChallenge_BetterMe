@@ -7,17 +7,40 @@ import app.bettermetesttask.domaincore.utils.Result
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.domainmovies.repository.MoviesRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 class MoviesRepositoryImpl @Inject constructor(
     private val localStore: MoviesLocalStore,
+    private val restStore: MoviesRestStore,
     private val mapper: MoviesMapper
 ) : MoviesRepository {
-
-    private val restStore = MoviesRestStore()
-
     override suspend fun getMovies(): Result<List<Movie>> {
-        TODO("Not yet implemented")
+        val refreshLocalMoviesAttempt = tryRefreshLocalMovies()
+        val localMovies = localStore.getMovies().map { mapper.mapFromLocal(it) }
+
+        return when (refreshLocalMoviesAttempt) {
+            is Result.Success -> {
+                Result.of { localMovies }
+            }
+            is Result.Error -> {
+                Timber.d("Refresh local movies failed: ${refreshLocalMoviesAttempt.error}")
+                Result.of { localMovies }
+            }
+        }
+    }
+
+    private fun tryRefreshLocalMovies(): Result<Unit> {
+        return runBlocking {
+            runCatching { restStore.getMovies() }.fold(
+                onSuccess = { apiMovies ->
+                    val dbMovies = apiMovies.map { mapper.mapToLocal(it) }
+                    Result.of { localStore.updateMovies(dbMovies) }
+                },
+                onFailure = { Result.Error(it) }
+            )
+        }
     }
 
     override suspend fun getMovie(id: Int): Result<Movie> {
