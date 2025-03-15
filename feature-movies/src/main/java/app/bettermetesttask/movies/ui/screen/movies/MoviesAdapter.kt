@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.sections
+package app.bettermetesttask.movies.ui.screen.movies
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,7 +12,9 @@ import app.bettermetesttask.movies.R
 import app.bettermetesttask.movies.databinding.MovieItemBinding
 import javax.inject.Inject
 
-class MoviesAdapter @Inject constructor() : ListAdapter<Movie, MoviesAdapter.MoviesHolder>(MovieItemDiffCallback()) {
+class MoviesAdapter @Inject constructor() : ListAdapter<Movie, MoviesAdapter.MoviesHolder>(
+    MovieItemDiffCallback()
+) {
 
     var onItemClicked: ((movie: Movie) -> Unit)? = null
     var onItemLiked: ((movie: Movie) -> Unit)? = null

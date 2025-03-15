@@ -24,6 +24,6 @@ class SplashFragment : Fragment(R.layout.splash_fragment), Injectable {
         super.onResume()
         Handler(Looper.getMainLooper()).postDelayed({
             viewModel.handleAppLaunch()
-        }, 2000L)
+        }, 100L)
     }
 }

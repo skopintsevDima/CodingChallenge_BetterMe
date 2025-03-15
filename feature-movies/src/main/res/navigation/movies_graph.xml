@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/moviesFragment"
-        android:name="app.bettermetesttask.movies.sections.MoviesFragment"
+        android:name="app.bettermetesttask.movies.ui.screen.movies.MoviesFragment"
         tools:layout="@layout/movies_fragment">
 
         <deepLink app:uri="@string/movies_deep_link" />
