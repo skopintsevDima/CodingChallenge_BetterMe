@@ -127,7 +127,7 @@ private fun DataScreen(
     onMovieClicked: (Int) -> Unit
 ) {
     LazyColumn {
-        items(movies, key = { movies.indexOf(it) }) { item ->
+        items(movies, key = { it.id }) { item ->
             MovieItem(
                 movie = item,
                 onLikeClicked = { onLikeMovie(item) },
