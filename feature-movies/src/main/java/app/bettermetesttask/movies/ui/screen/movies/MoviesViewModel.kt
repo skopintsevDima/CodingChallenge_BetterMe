@@ -3,6 +3,7 @@ package app.bettermetesttask.movies.ui.screen.movies
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.bettermetesttask.domaincore.utils.Result
+import app.bettermetesttask.domaincore.utils.coroutines.AppDispatchers
 import app.bettermetesttask.domainmovies.entries.Movie
 import app.bettermetesttask.domainmovies.interactors.AddMovieToFavoritesUseCase
 import app.bettermetesttask.domainmovies.interactors.ObserveMoviesUseCase
@@ -26,7 +27,7 @@ class MoviesViewModel @Inject constructor(
     fun loadMovies() {
         if (_uiState.value is MoviesUiState.Data) return
 
-        viewModelScope.launch {
+        viewModelScope.launch(AppDispatchers.io()) {
             _uiState.emit(MoviesUiState.Loading)
             invokeCatching("Loading movies failed") {
                 observeMoviesUseCase.invoke()
@@ -41,7 +42,7 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun likeMovie(movie: Movie) {
-        viewModelScope.launch {
+        viewModelScope.launch(AppDispatchers.io()) {
             invokeCatching("Like/dislike failed") {
                 if (!movie.liked) {
                     likeMovieUseCase.request(movie.id)

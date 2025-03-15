@@ -3,6 +3,7 @@ package app.bettermetesttask.movies.ui.screen.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.bettermetesttask.domaincore.utils.Result
+import app.bettermetesttask.domaincore.utils.coroutines.AppDispatchers
 import app.bettermetesttask.domainmovies.interactors.AddMovieToFavoritesUseCase
 import app.bettermetesttask.domainmovies.interactors.ObserveMovieUseCase
 import app.bettermetesttask.domainmovies.interactors.RemoveMovieFromFavoritesUseCase
@@ -29,7 +30,7 @@ class MovieDetailsViewModel @Inject constructor(
     }
 
     fun loadMovie() {
-        viewModelScope.launch {
+        viewModelScope.launch(AppDispatchers.io()) {
             movieId?.let { movieIdNotNull ->
                 _uiState.emit(MovieDetailsUiState.Loading)
                 invokeCatching("Loading movie details failed") {
@@ -46,7 +47,7 @@ class MovieDetailsViewModel @Inject constructor(
     }
 
     fun likeMovie() {
-        viewModelScope.launch {
+        viewModelScope.launch(AppDispatchers.io()) {
             val movie = _uiState.value.asData?.movie ?: return@launch
             invokeCatching("Like/dislike failed") {
                 if (!movie.liked) {
