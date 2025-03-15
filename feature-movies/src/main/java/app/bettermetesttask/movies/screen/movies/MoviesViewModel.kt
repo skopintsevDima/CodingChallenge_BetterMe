@@ -1,4 +1,4 @@
-package app.bettermetesttask.movies.sections
+package app.bettermetesttask.movies.screen.movies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -49,6 +49,6 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun openMovieDetails(movie: Movie) {
-        // TODO: todo todo todo todo
+        // Implemented in Compose Fragment only
     }
 }

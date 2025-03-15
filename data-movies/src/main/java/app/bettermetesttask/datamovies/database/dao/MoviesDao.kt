@@ -30,6 +30,9 @@ interface MoviesDao{
     @Query("SELECT * FROM liked_movies")
     fun selectLikedEntries(): Flow<List<LikedMovieEntry>>
 
+    @Query("SELECT * FROM liked_movies WHERE movie_id = :movieId")
+    fun selectLikedEntry(movieId: Int): Flow<LikedMovieEntry?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLikedEntry(entry: LikedMovieEntry)
 

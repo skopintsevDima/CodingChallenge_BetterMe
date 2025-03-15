@@ -6,8 +6,25 @@
 
     <fragment
         android:id="@+id/moviesFragmentCompose"
-        android:name="app.bettermetesttask.movies.sections.compose.MoviesComposeFragment">
+        android:name="app.bettermetesttask.movies.screen.movies.compose.MoviesComposeFragment">
 
         <deepLink app:uri="@string/movies_deep_link_compose" />
+
+        <action
+            android:id="@+id/actionMoviesToDetails"
+            app:destination="@id/movieDetailsFragmentCompose">
+            <argument
+                android:name="movieId"
+                app:argType="integer"/>
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/movieDetailsFragmentCompose"
+        android:name="app.bettermetesttask.movies.screen.details.MovieDetailsComposeFragment">
+        <argument
+            android:name="movieId"
+            app:argType="integer"
+            android:defaultValue="-1"/>
     </fragment>
 </navigation>

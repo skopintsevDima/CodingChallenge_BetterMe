@@ -3,9 +3,7 @@ package app.bettermetesttask.navigation
 import javax.inject.Inject
 
 interface HomeCoordinator {
-
     fun start()
-
 }
 
 class HomeCoordinatorImpl @Inject constructor(
