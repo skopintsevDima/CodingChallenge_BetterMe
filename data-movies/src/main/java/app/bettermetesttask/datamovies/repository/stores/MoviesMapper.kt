@@ -5,15 +5,14 @@ import app.bettermetesttask.domainmovies.entries.Movie
 import javax.inject.Inject
 
 class MoviesMapper @Inject constructor() {
-
-    val mapToLocal: (Movie) -> MovieEntity = {
-        with(it) {
+    fun mapToLocal(movie: Movie): MovieEntity {
+        return with(movie) {
             MovieEntity(id, title, description, posterPath)
         }
     }
 
-    val mapFromLocal: (MovieEntity) -> Movie = {
-        with(it) {
+    fun mapFromLocal(movieEntity: MovieEntity): Movie {
+        return with(movieEntity) {
             Movie(id, title, description, posterPath)
         }
     }
